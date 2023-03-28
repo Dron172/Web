@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.Server;
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,7 +22,7 @@ public class Connection implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
         try (
-                final var socket = server.serverSocket.accept();
+                final var socket = server.socket.accept();
                 final var in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 final var out = new BufferedOutputStream(socket.getOutputStream())
         ) {
@@ -35,16 +37,6 @@ public class Connection implements Callable<Boolean> {
             }
 
             final var path = parts[1];
-            if (!server.validPaths.contains(path)) {
-                out.write((
-                        "HTTP/1.1 404 Not Found\r\n" +
-                                "Content-Length: 0\r\n" +
-                                "Connection: close\r\n" +
-                                "\r\n"
-                ).getBytes());
-                out.flush();
-                return false;
-            }
 
             final var filePath = Path.of(".", "public", path);
             final var mimeType = Files.probeContentType(filePath);
